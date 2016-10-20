@@ -1,0 +1,31 @@
+{
+  "name": "movie",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "dependencies": {
+    "body-parser": "^1.15.2",
+    "bower": "^1.7.9",
+    "express": "^4.14.0",
+    "jade": "^1.11.0",
+    "moment": "^2.15.1",
+    "mongoose": "^4.6.3",
+    "serve-static": "^1.11.1",
+    "underscore": "^1.8.3"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AmberYLopez-demos/movie.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AmberYLopez-demos/movie/issues"
+  },
+  "homepage": "https://github.com/AmberYLopez-demos/movie#readme"
+}

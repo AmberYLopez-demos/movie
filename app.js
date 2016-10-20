@@ -16,7 +16,7 @@ app.locals.moment = require('moment');//引入时间的库
 app.set('views', './views/pages');
 app.set('view engine', 'jade');//模板引擎
 app.use(bodyParser.urlencoded());
-app.use(serveStatic('bower_components'));
+app.use(serveStatic('public'));
 app.listen(port);
 console.log('server listen on port' + port);
 
@@ -120,4 +120,17 @@ app.get('/admin/list', function (req, res) {
             movies: movies
         })
     });
+});
+
+app.delete('/admin/list',function (req, res) {
+    var id = req.query.id;
+        if(id) {
+            Movie.remove({_id: id}, function (err, movie) {
+                if (err) {
+                    console.log(err);
+                } else {
+                    res.json({success: 1});
+                }
+            });
+        }
 });
