@@ -3,6 +3,8 @@ var port = process.env.PORT || 3000;
 var path = require('path');
 var mongoose = require('mongoose');
 var Movie = require('./models/movie');
+var User = require('./models/user');
+
 var serveStatic = require('serve-static');
 var bodyParser = require('body-parser');
 var _ = require('underscore');//js实用库
@@ -35,7 +37,7 @@ app.get('/', function (req, res) {
 
 app.get('/movie/:id', function (req, res) {
     var id = req.params.id;
-
+    // res.send(req);
     Movie.findById(id, function (err, movie) {
         res.render('detail', {
             title: '详情页',
@@ -57,6 +59,34 @@ app.get('/admin/update/:id', function (req, res) {
 
 });
 
+//注册
+app.post('/user/signup',function (req, res) {
+    var _user = req.body.user;//获取表单数据，是一个对象 也可用req.param('user')
+    var user = new User(_user);
+    user.save(function (err, user) {
+        if(err) {
+            console.log(err);
+
+        }
+    });
+    // console.log(_user);
+
+    res.redirect('/admin/userlist');
+
+});
+
+//用户列表页
+app.get('/admin/userlist', function (req, res) {
+    User.fetch(function (err, users) {
+        if(err) {
+            console.log(err);
+        }
+        res.render('userlist', {
+            title: '用户列表页',
+            users: users
+        })
+    });
+});
 app.get('/admin/movie', function (req, res) {
     res.render('admin', {
         title: '后台录入页',
@@ -88,10 +118,12 @@ app.post('/admin/movie/new', function (req, res) {
                 if (err) {
                     console.log(err);
                 }
+                // res.send(movie._id);
                 res.redirect('/movie/' + movie._id);
             })
         })
-    } else {
+
+        } else {
         _movie = new Movie({
             doctor: movieObj.doctor,
             title: movieObj.title,
@@ -108,7 +140,7 @@ app.post('/admin/movie/new', function (req, res) {
                 console.log(err);
             }
 
-            res.redirect('/movie/' + movie._id);
+            res.redirect('/movie/' + movie._id);//{"movie":{"_id":"undefined","title":"从你的全世界路过","doctor":"其他","country":"中国","language":"中文","poster":"其他","flash":"其他","year":"2016","summary":""}}
         })
     }
 });
