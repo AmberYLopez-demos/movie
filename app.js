@@ -19,6 +19,10 @@ app.set('views', './views/pages');
 app.set('view engine', 'jade');//模板引擎
 app.use(bodyParser.urlencoded());
 app.use(serveStatic('public'));
+
+app.use(express.session({
+    secret: 'imooc'
+}));
 app.listen(port);
 console.log('server listen on port' + port);
 
@@ -60,25 +64,57 @@ app.get('/admin/update/:id', function (req, res) {
 });
 
 //注册
-app.post('/user/signup',function (req, res) {
+app.post('/user/signup', function (req, res) {
     var _user = req.body.user;//获取表单数据，是一个对象 也可用req.param('user')
-    var user = new User(_user);
-    user.save(function (err, user) {
-        if(err) {
-            console.log(err);
-
+    User.findOne({name: _user.name}, function (err, user) {
+        if (err) {
+            console.log(err)
         }
-    });
-    // console.log(_user);
-
-    res.redirect('/admin/userlist');
-
+        if (user) {//用户名已存在
+            return res.redirect('/');
+        } else {
+            var user = new User(_user);
+            user.save(function (err, user) {
+                if (err) {
+                    console.log(err);
+                }
+            });
+            res.redirect('/admin/userlist');
+        }
+    })
 });
 
+//登录
+app.post('/user/signin',function (req, res) {
+    var _user = req.body.user;
+    var name = _user.name;
+    var password = _user.password;
+
+    User.findOne({name:name},function (err, user) {
+        if(err) {
+            console.log(err);
+        }
+        if(!user) {//用户不存在
+            return res.redirect('/');
+        }
+        user.comparePassword(password,function (err, isMatch) {
+            if(err) {
+                console.log(err);
+            }
+            if(isMatch) {
+                // console.log('登录成功');
+                req.session.user = user;
+                return res.redirect('/');
+            }else{
+                console.log('密码不匹配');
+            }
+        })
+    })
+})
 //用户列表页
 app.get('/admin/userlist', function (req, res) {
     User.fetch(function (err, users) {
-        if(err) {
+        if (err) {
             console.log(err);
         }
         res.render('userlist', {
@@ -123,7 +159,7 @@ app.post('/admin/movie/new', function (req, res) {
             })
         })
 
-        } else {
+    } else {
         _movie = new Movie({
             doctor: movieObj.doctor,
             title: movieObj.title,
@@ -154,15 +190,15 @@ app.get('/admin/list', function (req, res) {
     });
 });
 
-app.delete('/admin/list',function (req, res) {
+app.delete('/admin/list', function (req, res) {
     var id = req.query.id;
-        if(id) {
-            Movie.remove({_id: id}, function (err, movie) {
-                if (err) {
-                    console.log(err);
-                } else {
-                    res.json({success: 1});
-                }
-            });
-        }
+    if (id) {
+        Movie.remove({_id: id}, function (err, movie) {
+            if (err) {
+                console.log(err);
+            } else {
+                res.json({success: 1});
+            }
+        });
+    }
 });
