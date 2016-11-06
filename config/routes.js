@@ -4,17 +4,18 @@ var _ = require('underscore');//js实用库
 
 module.exports = function (app) {
 
-
     app.use(function (req, res, next) {
         var _user = req.session.user;
-            app.locals = _user;
+        //console.log(_user);//页面一刷新就读取到 AmberYLOpez,加密的密码
+
+        app.locals.user = _user;
         return next();
     });
 
 //index page
     app.get('/', function (req, res) {
         // console.log(req.session.user);//undefined
-        var user = req.session.user;
+        var user = req.session.user;//req.session没有
         Movie.fetch(function (err, movies) {
             if (err) {
                 console.log(err)
@@ -28,7 +29,6 @@ module.exports = function (app) {
 
     app.get('/movie/:id', function (req, res) {
         var id = req.params.id;
-        // res.send(req);
         Movie.findById(id, function (err, movie) {
             res.render('detail', {
                 title: '详情页',
@@ -76,6 +76,7 @@ module.exports = function (app) {
         var _user = req.body.user;
         var name = _user.name;
         var password = _user.password;
+        //console.log(_user);//AmberYLOpez,l199603ay
 
         User.findOne({name: name}, function (err, user) {
             if (err) {
@@ -90,6 +91,7 @@ module.exports = function (app) {
                 }
                 if (isMatch) {
                     req.session.user = user;
+                    //console.log(req.session.user);//AmberYLOPez,加密后的密码
                     return res.redirect('/');
                 } else {
                     console.log('密码不匹配');
@@ -99,7 +101,6 @@ module.exports = function (app) {
     });
 //登出
     app.get('/logout', function (req, res) {
-
         delete req.session.user;
         delete app.locals.user;
         res.redirect('/');
@@ -195,4 +196,4 @@ module.exports = function (app) {
             });
         }
     });
-}
+};
